@@ -18,23 +18,6 @@ def create_regex_list(terms_file:str):
 
 fls_terms_regex = create_regex_list(r"fls_terms2.txt")
 
-def count_term(text:str, regex):
-    """Returns the number of long-term oriented."""
-    text = text.lower()
-    count = 0
-    for term in regex:
-      count = count + len(re.findall(term, text))
-    return count
-
-def is_term(text:str, regex): 
-  return count_term(text, regex) > 0
-
-def is_qt_term(text:str): 
-  return is_term(text, create_regex_list(r"qt_terms2.txt"))
-
-def is_future_year(text, future_year):
-    return is_term(text, get_future_year_regex(future_year))
-
 def get_future_year_regex(future_year):
     return [re.compile(r"[^$,]\b" + str(y) + r"\b(?!(%|,\d|.\d))") 
             for y in range(future_year + 1, future_year + 10)]
@@ -51,18 +34,20 @@ def is_forward_looking(sentence:str, future_year=None):
         if term.search(sentence.lower()):
             return True
     return False
+  
+def count_term(text:str, regex):
+    """Returns the number of long-term oriented."""
+    text = text.lower()
+    count = 0
+    for term in regex:
+      count = count + len(re.findall(term, text))
+    return count
 
-def print_stats(df, type = 'fl'):
-    var = type
-    var_cal = type + '_cal'
-    
-    tn = sum((df[var] == df[var_cal]) & ~df[var_cal])
-    fp = sum((df[var] != df[var_cal]) & df[var_cal])
-    fn = sum((df[var] != df[var_cal]) & ~df[var_cal])
-    tp = sum((df[var] == df[var_cal]) & df[var_cal])
-    
-    print("Accuracy {:.2f}%".format( 100 * (tp + tn)/(tp + tn + fp + fn)))
-    if tp + fp > 0:
-        print("Precision {:.2f}%".format( 100 * tp/(tp + fp)))
-    if tp + fn > 0:
-        print("True positive rate {:.2f}%".format( 100 * tp/(tp + fn)))
+def is_term(text:str, regex): 
+  return count_term(text, regex) > 0
+
+def is_qt_term(text:str): 
+  return is_term(text, create_regex_list(r"qt_terms2.txt"))
+
+def is_future_year(text, future_year):
+    return is_term(text, get_future_year_regex(future_year))
