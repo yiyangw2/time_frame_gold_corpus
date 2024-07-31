@@ -118,8 +118,19 @@ def count_term(text:str, regex):
 def is_term(text:str, regex): 
   return count_term(text, regex) > 0
 
-def is_qt_term(text:str): 
-  return is_term(text, create_regex_list(r"qt_terms2.txt"))
+# def is_qt_term(text:str): 
+#   return is_term(text, create_regex_list(r"qt_terms2.txt"))
+
+def is_qt_term(sentence:str, future_year=None):
+    """Returns whether sentence contains time frames."""
+    if future_year:
+        regex = get_future_year_regex(future_year) + create_regex_list(r"qt_terms2.txt")
+    else:
+        regex = create_regex_list(r"qt_terms2.txt")
+    for term in regex:
+        if term.search(sentence.lower()):
+            return True
+    return False
 
 def is_future_year(text, future_year):
     return is_term(text, get_future_year_regex(future_year))
